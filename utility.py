@@ -56,5 +56,11 @@ class Utilities:
         test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=130, shuffle=True)
         return test_loader
 
+
+    def category_mapping(json_file):
+        with open(json_file, 'r') as f:
+            cat_to_name = json.load(f)
+
+    return cat_to_name
+
 u = Utilities()
-        
