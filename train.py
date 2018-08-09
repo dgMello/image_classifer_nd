@@ -17,6 +17,8 @@ def main():
           "\n hidden units =", in_arg.hidden_units,"\n epochs =", in_arg.epochs,
           "\n gpu =", in_arg.gpu)
 
+    train_loder = create_train_loader(in_arg.data_dir):
+
     #trained_network = train_network()
 
     #test_network()
@@ -27,7 +29,7 @@ def main():
 def get_input_args():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('data_dir', type = str, default = 'flowers/train', help = 'Path to the folder flowers/train.')
+    parser.add_argument('data_dir', type = str, default = 'flowers', help = 'Path to the folder flowers.')
     parser.add_argument('--save_dir', type = str, default = 'workspace', help = 'Path to save directory.')
     parser.add_argument('--arch', type = str, default = 'vgg16', help = 'CNN model architecture to use.')
     parser.add_argument('--learning_rate', type = int, default = 0.0001, help = 'Learnrate used to train network.')

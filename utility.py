@@ -10,7 +10,8 @@ import matplotlib.pyplot as plt
 import seaborn as sb
 
 
-def create_train_loader(train_img_dir):
+def create_train_loader(img_dir):
+    train_img_dir = img_dir + '/train'
     # Create transforms for training data
     train_transform = transforms.Compose([transforms.RandomRotation(30),
         transforms.RandomResizedCrop(224),
@@ -26,7 +27,8 @@ def create_train_loader(train_img_dir):
 
     return train_loader
 
-def create_valid_loader(valid_img_dir):
+def create_valid_loader(img_dir):
+    valid_img_dir = img_dir + '/valid'
     # Create transforms for valididation data
     valid_transform = transforms.Compose([transforms.RandomRotation(30),
         transforms.RandomResizedCrop(224), tranforms.RandomHorizontalFlip(),
@@ -41,7 +43,8 @@ def create_valid_loader(valid_img_dir):
     return valid_loader
 
 
-def create_test_loader(test_img_dir):
+def create_test_loader(img_dir):
+    test_img_dir = img_dir + '/test'
     # Create transforms for valididation data
     test_transform = transforms.Compose([transforms.RandomRotation(30),
         transforms.RandomResizedCrop(224), tranforms.RandomHorizontalFlip(),
