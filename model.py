@@ -1,18 +1,74 @@
 %matplotlib inline
 %config InlineBackend.figure_format = 'retina'
 
-import ast
-from PIL import Image
-import torchvision.transforms as transforms
-from torch.autograd import Variable
-import torchvision.models as models
-from torch import __version__
+import torch
+from torch import nn
+from torch import optim
+import torch.nn.functional as F
+from torchvision import datasets, transforms, models
+from collections import OrderedDict
+import time
+from collections import OrderedDict
+
+alexnet = models.alexnet()
+vgg16 = models.vgg16()
+
+models = {'alexnet': alexnet, 'vgg': vgg16}
 
 class Model:
-    def __init__(self):
+    def __init__(self, model_name):
+        self.model_name = model_name
         print("Model Created")
 
-    def train_network(model, train_data, validation_data, epochs, device):
+    def build_model(model_name, hidden_units):
+        output_size = 102
+        dropout_rate = 0.5
+
+        # Check the model name to determine how model is built.
+        if model_name == 'alexnet':
+            print('Model is ', model_name)
+            model = models[model_name]
+            input_size = model.classifier[1].in_features
+
+            for param in model.parameters():
+                param.requires_grad = False
+
+            # Create classifier for alexnet model
+            classifier = nn.Sequential(OrderedDict([
+                ('dropout1', nn.Dropout(p = dropout_rate)),
+                ('fc1', nn.Linear(input_size, hidden_units)),
+                ('relu1', nn.ReLU()),
+                ('dropout2', nn.Dropout(p = dropout_rate)),
+                ('fc2', nn.Linear(hidden_units, output_size)),
+                ('output', nn.LogSoftmax(dim=1))
+                ]))
+
+            model.classifier = classifier
+
+            return model
+
+        elif model_name == 'vgg':
+            print('Model is ', model_name)
+            model = models[model_name]
+            input_size = model.classifier[0].in_features
+
+            for param in model.parameters():
+                param.requires_grad = False
+
+            # Create classifier for vgg model
+            classifier = nn.Sequential(OrderedDict([
+                ('fc1', nn.Linear(input_size, hidden_units)),
+                ('relu1', nn.ReLU()),
+                ('dropout1', nn.Dropout(p = dropout_rate)),
+                ('fc2', nn.Linear(hidden_units, output_size)),
+                ('output', nn.LogSoftmax(dim=1))
+                ]))
+
+            model.classifier = classifier
+
+            return model
+
+    def train_network(model, train_data, validation_data, epochs, gpu_on):
         '''
         Builds a network using feedforward and backpropagation with the VGG16 pretrained model.
 
@@ -34,8 +90,11 @@ class Model:
         device = torch.device(device)
         print("Train Network")
         steps = 0
-        # Switch model to cuda to increate spead of training
-        model.to('cuda')
+        # Switch model dpending on user input.
+        if gpu_on = False:
+            model.to('cpu')
+        else:
+            model.to('cuda')
         # Loop through all epochs
         print('Training starting...')
         for e in range(epochs):

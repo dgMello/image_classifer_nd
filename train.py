@@ -4,9 +4,10 @@
 # PURPOSE: Train network and save model as checkpoint.
 
 import argparse
+import utility.py
 from os import listdir
 # import utility
-# from model import train_network, test_network, save_checkpoint
+# from model import train_network, test_network, save_checkpoint.
 
 def main():
 
