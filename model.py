@@ -18,6 +18,15 @@ class Model:
         print("Model Created")
 
     def build_model(self, hidden_units):
+        '''
+        Creates a model with the pretrained network from pytorch. Builds the classifier and attaches it to it.
+
+        Arguments:
+            hidden_units: The number of hidden unites the classifier will have.
+        Outputs:
+            model: Variable containing the pretrained network with the classifer to predict.
+            input_size: The input size that the classifier will have. Will be used in the save_checkpoint function.
+        '''
         output_size = 102
         dropout_rate = 0.5
 
@@ -70,17 +79,16 @@ class Model:
         Builds a network using feedforward and backpropagation with the VGG16 pretrained model.
 
         Arguments:
-            model: The VGG16 pretrained model
-            train_data: The training data set used to train the model
-            validation_data: The validation data used to test for overfitting while training
+            model: The VGG16 pretrained model.
+            train_data: The training data set used to train the model.
+            validation_data: The validation data used to test for overfitting while training.
+            learnrate: The learnate the model will use to adjust weights on the backpropagation.
             epochs: The amount of epochs the model will run.
-            print_every: When function will print loss.
-            criterion = The criterion input used for the model.
-            optimizer: The optimizer input used for the model.
-            device: The type of device to run the model with. Either CPU or CUDA.
+            gpu_on: Boolean value indicating if user wants to use the gpu to train.
 
         Outputs:
             Trained neural network that has been tested with validation data to prevent overfitting.
+            optimizer: The optimizer that the model used. It will be used in the save_checkpoint function.
         '''
         criterion = nn.NLLLoss()
         optimizer = optim.Adam(model.classifier.parameters(), lr=learnrate)
@@ -143,6 +151,7 @@ class Model:
             model: The VGG16 pretrained model
             validation_data: The validation data used to test for overfitting while training
             criterion = The criterion input used for the model.
+            gpu_on: Boolean value indicating if user wants to use the gpu to train.
 
         Outputs:
             The accuracy of the neural network represented in test_lost and accuracy.
@@ -170,7 +179,9 @@ class Model:
         Tests the accuracy of the trained neural network using the test data
 
         Arguments:
+            model: The model that the will be tested.
             test_data: Tests data used to test neural network.
+            gpu_on: Boolean value indicating if user wants to use the gpu to train.
         Outputs:
             The accuracy of the network displayed via print.
         '''
@@ -195,6 +206,19 @@ class Model:
         print('Testing complete.')
 
     def save_checkpoint(self, model, input_size, hidden_units, optimizer, class_to_idx, epochs):
+        '''
+        Saves a checkpoint of the network that can be loaded.
+
+        Arguments:
+            model: The model that the will be tested.
+            input_size: The input size of the model's classifier.
+            hidden_units: The number of hidden unites the classifier will have.
+            optimizer: The optimizer that the model used.
+            class_to_idx: That image dataset that will be used in inference.
+            epochs: The amount of epochs the model will run.
+        Outputs:
+            A save file with the current state of the network saved.
+        '''
         print("Save checkpoint")
         checkpoint = {'input_size': input_size,
               'output_size': 102,
@@ -209,12 +233,12 @@ class Model:
 
     def load_checkpoint(self, filepath):
         '''
-        Tests the accuracy of the trained neural network using the test data
+        Loads the checkpoint of the network.
 
         Arguments:
             filepath: The name of the filepath where the saved model is located.
         Outputs:
-            The accuracy of the network displayed via print.
+            A loaded checkpoint for the network to use.
         '''
         print("Load checkpoint")
         checkpoint = torch.load(filepath)
