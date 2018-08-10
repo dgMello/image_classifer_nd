@@ -1,2 +1,2 @@
-import utility.py
+import utility
 from model import predict

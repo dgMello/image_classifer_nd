@@ -1,6 +1,3 @@
-%matplotlib inline
-%config InlineBackend.figure_format = 'retina'
-
 import torch
 from torch import nn
 from torch import optim
@@ -10,24 +7,24 @@ from collections import OrderedDict
 import time
 from collections import OrderedDict
 
-alexnet = models.alexnet()
-vgg16 = models.vgg16()
+alexnet = models.alexnet(pretrained=True)
+vgg16 = models.vgg16(pretrained=True)
 
-models = {'alexnet': alexnet, 'vgg': vgg16}
+models = {'alexnet': alexnet, 'vgg16': vgg16}
 
 class Model:
-    def __init__(self, model_name):
-        self.model_name = model_name
+    def __init__(self, model_type):
+        self.model_type = model_type
         print("Model Created")
 
-    def build_model(model_name, hidden_units):
+    def build_model(self, hidden_units):
         output_size = 102
         dropout_rate = 0.5
 
         # Check the model name to determine how model is built.
-        if model_name == 'alexnet':
-            print('Model is ', model_name)
-            model = models[model_name]
+        if self.model_type == 'alexnet':
+            print('Model is', self.model_type)
+            model = models[self.model_type]
             input_size = model.classifier[1].in_features
 
             for param in model.parameters():
@@ -45,11 +42,11 @@ class Model:
 
             model.classifier = classifier
 
-            return model
+            return model, input_size
 
-        elif model_name == 'vgg':
-            print('Model is ', model_name)
-            model = models[model_name]
+        elif self.model_type == 'vgg16':
+            print('Model is', self.model_type)
+            model = models[self.model_type]
             input_size = model.classifier[0].in_features
 
             for param in model.parameters():
@@ -66,9 +63,9 @@ class Model:
 
             model.classifier = classifier
 
-            return model
+            return model, input_size
 
-    def train_network(model, train_data, validation_data, epochs, gpu_on):
+    def train_network(self, model, train_data, validation_data, learnrate, epochs, gpu_on):
         '''
         Builds a network using feedforward and backpropagation with the VGG16 pretrained model.
 
@@ -87,11 +84,11 @@ class Model:
         '''
         criterion = nn.NLLLoss()
         optimizer = optim.Adam(model.classifier.parameters(), lr=learnrate)
-        device = torch.device(device)
         print("Train Network")
         steps = 0
+        print_every = 20
         # Switch model dpending on user input.
-        if gpu_on = False:
+        if gpu_on == False:
             model.to('cpu')
         else:
             model.to('cuda')
@@ -101,8 +98,10 @@ class Model:
             running_loss = 0
             for ii, (inputs, labels) in enumerate(train_data):
                 steps += 1
-
-                inputs, labels = inputs.to(device), labels.to(device)
+                if gpu_on == False:
+                    inputs, labels = inputs.to('cpu'), labels.to('cpu')
+                else:
+                    inputs, labels = inputs.to('cuda'), labels.to('cuda')
                 optimizer.zero_grad()
 
                 # Forward pass through your model
@@ -123,7 +122,7 @@ class Model:
                     model.eval()
                     # Turn off gradients for validation testing.
                     with torch.no_grad():
-                        test_loss, accuracy = validation(model, validation_data, criterion)
+                        test_loss, accuracy = self.validate_network(model, validation_data, criterion, gpu_on)
 
                     print("Epoch: {}/{}... ".format(e+1, epochs),
                           "Training Loss: {:.4f}.. ".format(running_loss/print_every),
@@ -134,8 +133,39 @@ class Model:
                     # Return your model to training model.
                     model.train()
         print('Training complete')
+        return optimizer
 
-    def test_network(test_data, device):
+    def validate_network(self, model, validation_data, criterion, gpu_on):
+        '''
+        Validates the the accuracy of the neural network using validation data.
+
+        Arguments:
+            model: The VGG16 pretrained model
+            validation_data: The validation data used to test for overfitting while training
+            criterion = The criterion input used for the model.
+
+        Outputs:
+            The accuracy of the neural network represented in test_lost and accuracy.
+        '''
+        test_loss = 0
+        accuracy = 0
+        for inputs, labels in validation_data:
+
+            if gpu_on == False:
+                inputs, labels = inputs.to('cpu'), labels.to('cpu')
+            else:
+                inputs, labels = inputs.to('cuda'), labels.to('cuda')
+
+        output = model.forward(inputs)
+        test_loss += criterion(output, labels).item()
+
+        ps = torch.exp(output)
+        equality = (labels.data == ps.max(dim=1)[1])
+        accuracy += equality.type(torch.FloatTensor).mean()
+
+        return test_loss, accuracy
+
+    def test_network(self, model, test_data, gpu_on):
         '''
         Tests the accuracy of the trained neural network using the test data
 
@@ -152,7 +182,10 @@ class Model:
             for data in test_data:
                 images, labels = data
                 # Set images and to use cuda
-                images, labels = images.to(device), labels.to(device)
+                if gpu_on == False:
+                    images, labels = images.to('cpu'), labels.to('cpu')
+                else:
+                    images, labels = images.to('cuda'), labels.to('cuda')
                 outputs = model(images)
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
@@ -161,21 +194,20 @@ class Model:
         print('Accuracy of the network on the 10000 test images: %d %%' % (100 * correct / total))
         print('Testing complete.')
 
-    def save_checkpoint(classifier):
+    def save_checkpoint(self, model, input_size, hidden_units, optimizer, class_to_idx, epochs):
         print("Save checkpoint")
-        model.class_to_idx = image_datasets['train'].class_to_idx
-        checkpoint = {'input_size': 25088,
+        checkpoint = {'input_size': input_size,
               'output_size': 102,
-              'hidden_layers': [2509],
-              'classifier': classifier,
+              'hidden_layers': hidden_units,
+              'classifier': model.classifier,
               'state_dict': model.state_dict(),
               'optimizer': optimizer.state_dict,
-              'image_datasets': model.class_to_idx,
+              'image_datasets': class_to_idx,
               'epochs': epochs}
         # Save the checkpoint
         torch.save(checkpoint, 'checkpoint.pth')
 
-    def load_checkpoint(filepath):
+    def load_checkpoint(self, filepath):
         '''
         Tests the accuracy of the trained neural network using the test data
 
@@ -190,7 +222,5 @@ class Model:
 
         return model
 
-    def predict():
+    def predict(self):
         print("Predict!")
-
-m = Model()
