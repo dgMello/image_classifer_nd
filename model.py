@@ -19,13 +19,16 @@ class Model:
 
     def build_model(self, hidden_units):
         '''
-        Creates a model with the pretrained network from pytorch. Builds the classifier and attaches it to it.
+        Creates a model with the pretrained network from pytorch. Builds the
+            classifier and attaches it to it.
 
         Arguments:
             hidden_units: The number of hidden unites the classifier will have.
         Outputs:
-            model: Variable containing the pretrained network with the classifer to predict.
-            input_size: The input size that the classifier will have. Will be used in the save_checkpoint function.
+            model: Variable containing the pretrained network with the classifer
+                to predict.
+            input_size: The input size that the classifier will have. Will be
+                used in the save_checkpoint function.
         '''
         output_size = 102
         dropout_rate = 0.5
@@ -74,21 +77,28 @@ class Model:
 
             return model, input_size
 
-    def train_network(self, model, train_data, validation_data, learnrate, epochs, gpu_on):
+    def train_network(self, model, train_data, validation_data, learnrate,
+        epochs, gpu_on):
         '''
-        Builds a network using feedforward and backpropagation with the VGG16 pretrained model.
+        Builds a network using feedforward and backpropagation with the VGG16
+            pretrained model.
 
         Arguments:
             model: The VGG16 pretrained model.
             train_data: The training data set used to train the model.
-            validation_data: The validation data used to test for overfitting while training.
-            learnrate: The learnate the model will use to adjust weights on the backpropagation.
+            validation_data: The validation data used to test for overfitting
+                while training.
+            learnrate: The learnate the model will use to adjust weights on the
+                backpropagation.
             epochs: The amount of epochs the model will run.
-            gpu_on: Boolean value indicating if user wants to use the gpu to train.
+            gpu_on: Boolean value indicating if user wants to use the gpu to
+                train.
 
         Outputs:
-            Trained neural network that has been tested with validation data to prevent overfitting.
-            optimizer: The optimizer that the model used. It will be used in the save_checkpoint function.
+            Trained neural network that has been tested with validation data to
+                prevent overfitting.
+            optimizer: The optimizer that the model used. It will be used in the
+                save_checkpoint function.
         '''
         criterion = nn.NLLLoss()
         optimizer = optim.Adam(model.classifier.parameters(), lr=learnrate)
@@ -130,12 +140,13 @@ class Model:
                     model.eval()
                     # Turn off gradients for validation testing.
                     with torch.no_grad():
-                        test_loss, accuracy = self.validate_network(model, validation_data, criterion, gpu_on)
+                        test_loss, accuracy = self.validate_network(model,
+                            validation_data, criterion, gpu_on)
 
                     print("Epoch: {}/{}... ".format(e+1, epochs),
-                          "Training Loss: {:.4f}.. ".format(running_loss/print_every),
-                          "Validation Loss: {:.4f}.. ".format(test_loss/len(validation_data)),
-                          "Test Accuracy: {:.4f}".format(accuracy/len(validation_data)))
+                        "Training Loss: {:.4f}.. ".format(running_loss/print_every),
+                        "Validation Loss: {:.4f}.. ".format(test_loss/len(validation_data)),
+                        "Test Accuracy: {:.4f}".format(accuracy/len(validation_data)))
                     # Set running loss back to 0
                     running_loss = 0
                     # Return your model to training model.
@@ -149,12 +160,15 @@ class Model:
 
         Arguments:
             model: The VGG16 pretrained model
-            validation_data: The validation data used to test for overfitting while training
+            validation_data: The validation data used to test for overfitting
+                while training
             criterion = The criterion input used for the model.
-            gpu_on: Boolean value indicating if user wants to use the gpu to train.
+            gpu_on: Boolean value indicating if user wants to use the gpu to
+                train.
 
         Outputs:
-            The accuracy of the neural network represented in test_lost and accuracy.
+            The accuracy of the neural network represented in test_lost and
+                accuracy.
         '''
         test_loss = 0
         accuracy = 0
@@ -181,7 +195,8 @@ class Model:
         Arguments:
             model: The model that the will be tested.
             test_data: Tests data used to test neural network.
-            gpu_on: Boolean value indicating if user wants to use the gpu to train.
+            gpu_on: Boolean value indicating if user wants to use the gpu to
+                train.
         Outputs:
             The accuracy of the network displayed via print.
         '''
@@ -202,10 +217,12 @@ class Model:
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
-        print('Accuracy of the network on the 10000 test images: %d %%' % (100 * correct / total))
+        print('Accuracy of the network on the 10000 test images: %d %%' %
+            (100 * correct / total))
         print('Testing complete.')
 
-    def save_checkpoint(self, model, input_size, hidden_units, optimizer, class_to_idx, epochs):
+    def save_checkpoint(self, model, input_size, hidden_units, optimizer,
+        class_to_idx, epochs):
         '''
         Saves a checkpoint of the network that can be loaded.
 
@@ -220,16 +237,18 @@ class Model:
             A save file with the current state of the network saved.
         '''
         print("Save checkpoint")
-        checkpoint = {'input_size': input_size,
-              'output_size': 102,
-              'hidden_layers': hidden_units,
-              'classifier': model.classifier,
-              'state_dict': model.state_dict(),
-              'optimizer': optimizer.state_dict,
-              'image_datasets': class_to_idx,
-              'epochs': epochs}
+        checkpoint = {'input_size': input_size, 'output_size': 102,
+            'hidden_layers': hidden_units, 'classifier': model.classifier,
+            'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict,
+            'image_datasets': class_to_idx, 'epochs': epochs}
+
         # Save the checkpoint
-        torch.save(checkpoint, 'checkpoint.pth')
+        if save_dir == None:
+            # Save checkpoint in same folder as train.py
+            torch.save(checkpoint, 'checkpoints.pth')
+        else:
+            # Save checkpoint in save directory provided by user.
+            torch.save(checkpoint, save_dir + '/checkpoints.pth')
 
     def load_checkpoint(self, filepath):
         '''

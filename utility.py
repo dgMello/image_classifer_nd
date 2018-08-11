@@ -15,7 +15,8 @@ def create_train_loader(img_dir):
     Creates a train loader variable to use with network training
 
     Arguments:
-       img_dir: The image directory where the images used for training are stored.
+       img_dir: The image directory where the images used for training are
+           stored.
     Outputs:
       train_loader: The train loader used with training
       train_dataset: The dataset of images used with training
@@ -41,7 +42,8 @@ def create_valid_loader(img_dir):
     Creates a valid loader variable to use with network validating
 
     Arguments:
-       img_dir: The image directory where the images used for validating are stored.
+        img_dir: The image directory where the images used for validating are
+            stored.
     Outputs:
       valid_loader: The train loader used with validating
     '''
@@ -65,7 +67,8 @@ def create_test_loader(img_dir):
     Creates a test loader variable to use with network testing
 
     Arguments:
-       img_dir: The image directory where the images used for testing are stored.
+        img_dir: The image directory where the images used for testing are
+    stored.
     Outputs:
       test_loader: The train loader used with testing
     '''
@@ -89,9 +92,10 @@ def category_mapping(json_file):
     Creates a dictionary with flower names and number used to map them.
 
     Arguments:
-       json_file: The JSON file where the flower name and mapping info.
+        json_file: The JSON file where the flower name and mapping info.
     Outputs:
-      cat_to_name: A dictionary containing all flower names and the number they're mapped to.
+        cat_to_name: A dictionary containing all flower names and the number
+            they're mapped to.
     '''
     with open(json_file, 'r') as f:
         cat_to_name = json.load(f)
