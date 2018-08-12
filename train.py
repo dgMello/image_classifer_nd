@@ -33,7 +33,7 @@ def main():
     # Test the newly trained network by calling the test_network function
     new_model.test_network(built_model, test_loader, in_arg.gpu)
     # Save the training image dataset to your model.
-    built_model.class_to_idx = train_dataset
+    built_model.class_to_idx = train_dataset.class_to_idx
     # Save model by calling the save_checkpoint fucntion
     saved_model = new_model.save_checkpoint(built_model, input_size,
         in_arg.hidden_units, optimizer, built_model.class_to_idx, in_arg.epochs)

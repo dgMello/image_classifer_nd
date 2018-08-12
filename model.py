@@ -146,7 +146,7 @@ class Model:
                     print("Epoch: {}/{}... ".format(e+1, epochs),
                         "Training Loss: {:.4f}.. ".format(running_loss/print_every),
                         "Validation Loss: {:.4f}.. ".format(test_loss/len(validation_data)),
-                        "Test Accuracy: {:.4f}".format(accuracy/len(validation_data)))
+                        "Validation Accuracy: {:.4f}".format(accuracy/len(validation_data)))
                     # Set running loss back to 0
                     running_loss = 0
                     # Return your model to training model.
@@ -245,25 +245,24 @@ class Model:
         # Save the checkpoint
         if save_dir == None:
             # Save checkpoint in same folder as train.py
-            torch.save(checkpoint, 'checkpoints.pth')
+            torch.save(checkpoint, 'checkpoint.pth')
         else:
             # Save checkpoint in save directory provided by user.
-            torch.save(checkpoint, save_dir + '/checkpoints.pth')
+            torch.save(checkpoint, save_dir + '/checkpoint.pth')
 
-    def load_checkpoint(self, filepath):
-        '''
-        Loads the checkpoint of the network.
 
-        Arguments:
-            filepath: The name of the filepath where the saved model is located.
-        Outputs:
-            A loaded checkpoint for the network to use.
-        '''
-        print("Load checkpoint")
-        checkpoint = torch.load(filepath)
-        model.load_state_dict(checkpoint['state_dict'])
+def load_checkpoint(filepath):
+    '''
+    Loads the checkpoint of the network.
 
-        return model
+    Arguments:
+        filepath: The name of the filepath where the saved model is located.
+    Outputs:
+        A loaded checkpoint for the network to use.
+    '''
+    print("Load checkpoint")
+    checkpoint = torch.load(filepath)
+    model = checkpoint['model']
+    model.load_state_dict(checkpoint['state_dict'])
 
-    def predict(self):
-        print("Predict!")
+    return model, checkpoint
