@@ -41,9 +41,9 @@ def main():
     built_model.class_to_idx = train_dataset.class_to_idx
 
     # Save model by calling the save_checkpoint fucntion
-    saved_model = new_model.save_checkpoint(built_model, input_size,
-        in_arg.hidden_units, optimizer, built_model.class_to_idx, in_arg.epochs,
-        in_arg.save_dir)
+    saved_model = new_model.save_checkpoint(built_model, in_arg.arch,
+        input_size, in_arg.hidden_units, optimizer, built_model.class_to_idx,
+        in_arg.epochs, in_arg.save_dir)
 
 
 def get_input_args():

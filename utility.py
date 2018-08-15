@@ -48,9 +48,9 @@ def create_valid_loader(img_dir):
     '''
     valid_img_dir = img_dir + '/valid'
     # Create transforms for valididation data
-    valid_transform = transforms.Compose([transforms.RandomRotation(30),
-        transforms.RandomResizedCrop(224), transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(), transforms.Normalize([0.485, 0.456, 0.406],
+    valid_transform = transforms.Compose([transforms.Resize(256),
+        transforms.CenterCrop(224), transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406],
         [0.229, 0.224, 0.225])])
     # Create dataset for valididation data
     valid_dataset = datasets.ImageFolder(valid_img_dir,
@@ -72,10 +72,10 @@ def create_test_loader(img_dir):
     '''
     test_img_dir = img_dir + '/test'
     # Create transforms for valididation data
-    test_transform = transforms.Compose([transforms.RandomRotation(30),
-        transforms.RandomResizedCrop(224), transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(), transforms.Normalize([0.485, 0.456, 0.406],
-            [0.229, 0.224, 0.225])])
+    test_transform = transforms.Compose([transforms.Resize(256),
+        transforms.CenterCrop(224), transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406],
+        [0.229, 0.224, 0.225])])
     # Create dataset for valididation data
     test_dataset = datasets.ImageFolder(test_img_dir,
         transform=test_transform)

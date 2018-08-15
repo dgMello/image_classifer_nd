@@ -35,14 +35,14 @@ class Model:
         vgg16 = models.vgg16(pretrained=True)
         # Create Model dictionary
         model_dic = {'alexnet': alexnet, 'vgg16': vgg16}
+        model_type = self.model_type
 
         output_size = 102
         dropout_rate = 0.5
 
         # Check the model name to determine how model is built.
-        if self.model_type == 'alexnet':
-            print('Model is', self.model_type)
-            model = models[self.model_type]
+        if model_type == 'alexnet':
+            model = models[model_type]
             input_size = model.classifier[1].in_features
 
             for param in model.parameters():
@@ -62,9 +62,8 @@ class Model:
 
             return model, input_size
 
-        elif self.model_type == 'vgg16':
-            print('Model is', self.model_type)
-            model = models[self.model_type]
+        elif model_type == 'vgg16':
+            model = models[model_type]
             input_size = model.classifier[0].in_features
 
             for param in model.parameters():
@@ -227,8 +226,8 @@ class Model:
             (100 * correct / total))
         print('Testing complete.')
 
-    def save_checkpoint(self, model, input_size, hidden_units, optimizer,
-        class_to_idx, epochs):
+    def save_checkpoint(self, model, model_type, input_size, hidden_units,
+        optimizer, class_to_idx, epochs):
         '''
         Saves a checkpoint of the network that can be loaded.
 
@@ -243,7 +242,8 @@ class Model:
             A save file with the current state of the network saved.
         '''
         model.to('cpu')
-        checkpoint = {'input_size': input_size, 'output_size': 102,
+        checkpoint = {'model_object': self, 'arch': model_type,
+            'input_size': input_size, 'output_size': 102,
             'hidden_layers': hidden_units, 'classifier': model.classifier,
             'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict,
             'image_datasets': class_to_idx, 'epochs': epochs}
@@ -269,7 +269,18 @@ def load_checkpoint(filepath):
     '''
     print("Load checkpoint")
     checkpoint = torch.load(filepath)
-    model = checkpoint['model']
+
+    # Load the pretrained model
+    if checkpoint['arch'] == 'vgg16':
+        model = models.vgg16(pretrained=True)
+    elif checkpoint['arch'] == 'alexnet':
+        model = models.alexnet(pretrained=True)
+
+    # Update model with classifier from checkpoint
+    model.classifier = checkpoint['classifier']
+    # Update model with iamge datasets from checkpoint
+    model.class_to_idx = checkpoint['image_datasets']
+    # Update model with state_dict from checkpoint
     model.load_state_dict(checkpoint['state_dict'])
 
     return model, checkpoint
