@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sb
+import json
 
 
 def create_train_loader(img_dir):
@@ -15,8 +16,7 @@ def create_train_loader(img_dir):
     Creates a train loader variable to use with network training
 
     Arguments:
-       img_dir: The image directory where the images used for training are
-           stored.
+       img_dir: The image directory where the images used for training are stored.
     Outputs:
       train_loader: The train loader used with training
       train_dataset: The dataset of images used with training
@@ -38,12 +38,11 @@ def create_train_loader(img_dir):
     return train_loader, train_dataset
 
 def create_valid_loader(img_dir):
-     '''
+    '''
     Creates a valid loader variable to use with network validating
 
     Arguments:
-        img_dir: The image directory where the images used for validating are
-            stored.
+       img_dir: The image directory where the images used for validating are stored.
     Outputs:
       valid_loader: The train loader used with validating
     '''
@@ -67,10 +66,9 @@ def create_test_loader(img_dir):
     Creates a test loader variable to use with network testing
 
     Arguments:
-        img_dir: The image directory where the images used for testing are
-    stored.
+       img_dir: The image directory where the images used for testing are stored.
     Outputs:
-      test_loader: The train loader used with testing
+        test_loader: The train loader used with testing
     '''
     test_img_dir = img_dir + '/test'
     # Create transforms for valididation data
@@ -92,20 +90,25 @@ def category_mapping(json_file):
     Creates a dictionary with flower names and number used to map them.
 
     Arguments:
-        json_file: The JSON file where the flower name and mapping info.
+       json_file: The JSON file where the flower name and mapping info.
     Outputs:
-        cat_to_name: A dictionary containing all flower names and the number
-            they're mapped to.
+      cat_to_name: A dictionary containing all flower names and the number they're mapped to.
     '''
     with open(json_file, 'r') as f:
         cat_to_name = json.load(f)
 
     return cat_to_name
 
+# Function to process an image and return a numpy array
 def process_image(image):
     ''' Scales, crops, and normalizes a PIL image for a PyTorch model,
         returns an Numpy array
+    Arugment:
+        image: image file that fill be turned into a numpy array
+    Output:
+        transposed_image: Image in the form of a numpy array.
     '''
+
     # Convert image to a pil image and get the width and height of the image.
     original_pil_image = Image.open(image)
     pil_image = original_pil_image.copy()
@@ -121,6 +124,8 @@ def process_image(image):
         ratio = float(height) / float(width)
         new_width = ratio * size
         pil_image = pil_image.resize((int(new_width), size))
+
+
 
     # Create variables for the amount to crop on each side
     width, height = pil_image.size
@@ -145,10 +150,20 @@ def process_image(image):
     return transposed_image
 
 def predict(img, model, topk, cat_to_name, gpu_on):
-    print("Predict!")
-    ''' Predict the class (or classes) of an image using a trained deep learning model.
+    '''
+    Predict the class (or classes) of an image using a trained deep learning model.
+
+    Arguments:
+        img: The image file that will be passed through the model.
+        model: The model that will be used for inference.
+        topk: The number of classes the model will give a percentage for.
+        cat_to_name: A dictionary containing all flower names and the number they're mapped to.
+        gpu_on: Boolean value indication whether GPU will be used in prediction.
+    Outputs:
+        probability_chart: A chart of the class names and probabilities for each.
     '''
 
+    # TODO: Implement the code to predict the class from an image file
     model.eval()
     img = torch.from_numpy(np.array(img)).float()
     if gpu_on == True:
@@ -175,5 +190,8 @@ def predict(img, model, topk, cat_to_name, gpu_on):
     class_names = []
     for i in updated_classes:
         class_names.append(cat_to_name[str(i)])
+    # Convert top classes and probabilites into a dataframe
+    data = {'Flower Classes' : pd.Series(class_names), 'Probabilites (%)' : pd.Series(probs * 100)}
+    probability_chart = pd.DataFrame(data, index = None)
 
-    return class_names
+    return probability_chart

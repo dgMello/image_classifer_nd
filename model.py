@@ -30,6 +30,12 @@ class Model:
             input_size: The input size that the classifier will have. Will be
                 used in the save_checkpoint function.
         '''
+        # Download models
+        alexnet = models.alexnet(pretrained=True)
+        vgg16 = models.vgg16(pretrained=True)
+        # Create Model dictionary
+        model_dic = {'alexnet': alexnet, 'vgg16': vgg16}
+
         output_size = 102
         dropout_rate = 0.5
 
@@ -236,7 +242,7 @@ class Model:
         Outputs:
             A save file with the current state of the network saved.
         '''
-        print("Save checkpoint")
+        model.to('cpu')
         checkpoint = {'input_size': input_size, 'output_size': 102,
             'hidden_layers': hidden_units, 'classifier': model.classifier,
             'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict,
@@ -250,6 +256,7 @@ class Model:
             # Save checkpoint in save directory provided by user.
             torch.save(checkpoint, save_dir + '/checkpoint.pth')
 
+        print('Checkpoint saved')
 
 def load_checkpoint(filepath):
     '''

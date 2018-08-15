@@ -11,9 +11,9 @@ from model import load_checkpoint
 def main():
     print('Predict')
     in_arg = get_input_args()
-    print("Command Line Arguments:\n input =", in_arg.input, "\n checkpoint =", in_arg.checkpoint,
-          "\n top_k =", in_arg.top_k, "\n category_names =", in_arg.category_names,
-          "\n gpu =", in_arg.gpu)
+    print("Command Line Arguments:\n input =", in_arg.input,
+        "\n checkpoint =", in_arg.checkpoint, "\n top_k =", in_arg.top_k,
+        "\n category_names =", in_arg.category_names, "\n gpu =", in_arg.gpu)
 
     # Load checkpoint
     model, checkpoint = load_checkpoint(in_arg.checkpoint)
@@ -25,7 +25,9 @@ def main():
     transposed_image = process_image(in_arg.input)
 
     # Get the prediction for an image file.
-    top_classes = predict(transposed_image, model, in_arg.top_k, cat_to_name, in_arg.gpu)
+    top_classes = predict(transposed_image, model, in_arg.top_k, cat_to_name,
+        in_arg.gpu)
+    # Print the chart with the top classes and probabilities.
     print(top_classes)
 
 
