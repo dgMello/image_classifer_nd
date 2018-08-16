@@ -2,13 +2,13 @@
 
 
 ## Description
-  This app allows the user to train a neural network to learn differnt plant
-  types using pictures of them.
-  The app will then be able to be fed a picture a one of the trained flowers and
+  This app allows the user to train a neural network to learn different plant
+  types using images.
+  The app will then be able to be fed a image of one of the trained flowers and
   predict which flower it is.
 
 ## Installation
-  Part 1: Training neural network.
+  Part 1: Training the neural network.
 
     $ git clone https://github.com/dgMello/image_classifer_nd.
 
@@ -32,7 +32,7 @@
 
     --gpu: If entered GPU will be used to train network. Defaults to False if no argument is provided.
 
-Part 2: Predicting with trained neural network
+Part 2: Predicting with the trained neural network
 
     Enter the following into command prompt with arguments below: $ python predict.py.
 
