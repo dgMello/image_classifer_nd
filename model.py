@@ -242,11 +242,9 @@ class Model:
             A save file with the current state of the network saved.
         '''
         model.to('cpu')
-        checkpoint = {'model_object': self, 'arch': model_type,
-            'input_size': input_size, 'output_size': 102,
-            'hidden_layers': hidden_units, 'classifier': model.classifier,
-            'state_dict': model.state_dict(), 'optimizer': optimizer.state_dict,
-            'image_datasets': class_to_idx, 'epochs': epochs}
+        checkpoint = {'arch': model_type, 'hidden_layers': hidden_units,
+            'classifier': model.classifier, 'state_dict': model.state_dict(),
+            'optimizer': optimizer.state_dict, 'image_datasets': class_to_idx}
 
         # Save the checkpoint
         if save_dir == None:
