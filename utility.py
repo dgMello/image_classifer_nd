@@ -163,7 +163,6 @@ def predict(img, model, topk, cat_to_name, gpu_on):
         probability_chart: A chart of the class names and probabilities for each.
     '''
 
-    # TODO: Implement the code to predict the class from an image file
     model.eval()
     img = torch.from_numpy(np.array(img)).float()
     if gpu_on == True:
